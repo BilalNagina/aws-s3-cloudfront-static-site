@@ -1,327 +1,235 @@
-## ![🚀](<Base64-Image-Removed>) AWS Static Website Hosting — Terraform + S3 + CloudFront (OAC)
+# 🚀 AWS Static Website Hosting — Terraform + S3 + CloudFront (OAC)
 
 A fully automated, production-grade static website hosting stack built with Terraform, Amazon S3, CloudFront, and CloudFront Origin Access Control (OAC).
 
 This project deploys a modern, secure static site hosting pipeline with:
 
-![🛡](<Base64-Image-Removed>)Private S3 bucket
-
-![🚀](<Base64-Image-Removed>)Global CDN via CloudFront
-
-![🔐](<Base64-Image-Removed>)Origin Access Control (OAC) for secure bucket access
-
-![📁](<Base64-Image-Removed>)Infrastructure-as-Code (Terraform modules)
-
-![🌍](<Base64-Image-Removed>)HTTPS-ready CloudFront domain
-
-![⚡](<Base64-Image-Removed>)One-command website deployments via AWS CLI
+* 🛡 **Private S3 bucket**
+* 🚀 **Global CDN via CloudFront**
+* 🔐 **Origin Access Control (OAC)** for secure bucket access
+* 📁 **Infrastructure-as-Code** (Terraform modules)
+* 🌍 **HTTPS-ready** CloudFront domain
+* ⚡ **One-command website deployments** via AWS CLI
 
 Perfect for portfolios, landing pages, documentation sites, and any static frontend.
 
-## ![📂](<Base64-Image-Removed>) LAYER 1 — Terraform Project Structure
+---
 
-A clean module-based layout for clarity, reusability, and scale:
+## 📂 LAYER 1 — Terraform Project Structure
 
-aws-static-site/
+A clean module-based layout for clarity, reusability, and scale.
+
+```text
+aws-s3-cloudfront-static-site/
 │
 ├── main.tf
 ├── variables.tf
 ├── outputs.tf
 │
 ├── modules/
-│ ├── s3-site/ # S3 bucket + versioning + private access + bucket policy
-│ └── cloudfront/ # CloudFront distribution + OAC
+│   ├── s3-site/             # S3 bucket + versioning + private access + bucket policy
+│   └── cloudfront/          # CloudFront distribution + OAC
 │
 ├── templates/
-│ └── s3-policy.json.tpl # Bucket policy template
+│   └── s3-policy.json.tpl   # Bucket policy template
 │
-└── site/ # Your static website (HTML / CSS / JS)
+└── site/                    # Your static website (HTML / CSS / JS)
+```
 
-​
+### Why this layout?
+* **`modules/`** keeps infra components isolated, reusable, and testable.
+* **`templates/`** holds dynamic policies.
+* **`site/`** stores your static assets.
+* **Root folder** focuses only on wiring pieces together.
 
-#### Why this layout?
+*This mirrors real-world Terraform project structures.*
 
-modules/ keeps infra components isolated, reusable, testable.
+---
 
-templates/ holds dynamic policies.
+## 🌩 LAYER 2 — AWS Architecture Overview
 
-site/ stores your static assets.
+This project creates a secure static hosting architecture where the S3 bucket remains private, and content is served exclusively through CloudFront.
 
-Root folder focuses only on wiring pieces together.
-
-This mirrors real-world Terraform project structures.
-
-## ![🌩](<Base64-Image-Removed>) LAYER 2 — AWS Architecture Overview
-
-This project creates a secure static hosting architecture:
-
-#### ![✔](<Base64-Image-Removed>) 1\. Private S3 Bucket
-
+### ✔ 1. Private S3 Bucket
 Your website files are stored privately.
+* No public access
+* No public ACLs
+* Versioning enabled
+* Public access block enabled
 
-No public access
-
-No public ACLs
-
-Versioning enabled
-
-Public access block enabled
-
-#### ![✔](<Base64-Image-Removed>) 2\. CloudFront Distribution
-
+### ✔ 2. CloudFront Distribution
 CloudFront globally caches your site and serves it fast anywhere in the world.
 
-#### ![✔](<Base64-Image-Removed>) 3\. Origin Access Control (OAC)
+### ✔ 3. Origin Access Control (OAC)
+CloudFront becomes the **only** service allowed to read objects from your S3 bucket. The OAC + Bucket Policy combo ensures:
+* **S3** → not public
+* **CloudFront** → allowed based on `SourceArn`
+* **Browser** → HTTPS only
 
-CloudFront becomes the only service allowed to read objects from your S3 bucket.
+### ✔ 4. Bucket Policy
+Generated dynamically using Terraform’s `templatefile()`:
+* Allows CloudFront distribution to read objects.
+* Enforces SigV4 signing.
+* Protects against public access.
+* Ensures least-privilege access.
 
-The OAC + Bucket Policy combo ensures:
-
-S3 → not public
-
-CloudFront → allowed based on SourceArn
-
-Browser → HTTPS only
-
-###![✔](<Base64-Image-Removed>) 4\. Bucket Policy
-
-Generated dynamically using Terraform’s
-
-templatefile()
-
-:
-
-Allows CloudFront distribution to read objects
-
-Enforces SigV4 signing
-
-Protects against public access
-
-Ensures least-privilege access
-
-#### ![✔](<Base64-Image-Removed>) 5\. Terraform Modules
-
-You have:
-
-modules/s3-site
-
-modules/cloudfront
+### ✔ 5. Terraform Modules
+* `modules/s3-site`
+* `modules/cloudfront`
 
 Modules contain the actual AWS resources, keeping your root config clean.
 
-## ![⚙](<Base64-Image-Removed>) LAYER 3 — Deployment Workflow
+---
 
-This is the full end-to-end workflow from installing Terraform → deploying infra → uploading site → viewing it live.
+## ⚙ LAYER 3 — Deployment Workflow
 
-Follow these steps exactly.
+This is the full end-to-end workflow from installing Terraform → deploying infra → uploading site → viewing it live. **Follow these steps exactly.**
 
-## ![📦](<Base64-Image-Removed>) 1\. Install AWS CLI, Terraform, Git
+### 📦 1. Install AWS CLI, Terraform, Git
+*(Windows PowerShell using Chocolatey)*
 
-(Windows PowerShell using Chocolatey)
-
+```powershell
 choco install terraform -y
 choco install awscli -y
 choco install git -y
+```
 
-​
-
-Verify:
-
+**Verify installation:**
+```bash
 terraform -version
 aws --version
 git --version
+```
 
-​
+### 🔑 2. Configure AWS Credentials
 
-## ![🔑](<Base64-Image-Removed>) 2\. Configure AWS Credentials
-
+```bash
 aws configure
+```
+* **Access Key:** [Your Key]
+* **Secret Key:** [Your Secret]
+* **Region:** `ap-south-1`
+* **Output:** `json`
 
-​
-
-Provide:
-
-Access Key
-
-Secret Key
-
-Region:
-
-ap-south-1
-
-Output:
-
-json
-
-Verify identity:
-
+**Verify identity:**
+```bash
 aws sts get-caller-identity
+```
 
-​
+### 📁 3. Clone / Open the Project
 
-## ![📁](<Base64-Image-Removed>) 3\. Clone / Open the Project
+```bash
+cd C:\Users\Bilal\aws-s3-cloudfront-static-site
+# (or your specific path)
+```
 
-cd C:\\Users\\Bilal\\aws-static-site
+### 🌍 4. Create `terraform.tfvars`
+Create a file named `terraform.tfvars` in the root directory:
 
-​
+```hcl
+bucket_name = "your-unique-bucket-name-2025"
+region      = "ap-south-1"
+project     = "static-site"
+aliases     = []
+price_class = "PriceClass_100"
 
-(or your path)
+tags = {
+  Owner = "bilal"
+  Env   = "dev"
+}
+```
 
-## ![🌍](<Base64-Image-Removed>) 4\. Create terraform.tfvars
+### 🔧 5. Initialize Terraform
 
-Create a file terraform.tfvars:
-
-bucket\_name="your-unique-bucket-name-2025"region="ap-south-1"project="static-site"aliases=\[\]price\_class="PriceClass\_100"tags={Owner="bilal"Env="dev"}
-
-​
-
-## ![🔧](<Base64-Image-Removed>) 5\. Initialize Terraform
-
+```bash
 terraform init
+```
 
-​
+### 🧪 6. Validate Configuration
 
-## ![🧪](<Base64-Image-Removed>) 6\. Validate Configuration
-
+```bash
 terraform fmt -recursive
 terraform validate
+```
 
-​
+### 📘 7. Create a Plan
 
-## ![📘](<Base64-Image-Removed>) 7\. Create a Plan
-
+```bash
 terraform plan -out=tfplan -input=false
+```
+*Review what Terraform will create: S3 bucket, CloudFront Distribution, OAC, and Bucket policy.*
 
-​
+### 🚀 8. Apply Infrastructure
 
-Review what Terraform will create:
-
-S3 bucket
-
-CloudFront Distribution
-
-Origin Access Control
-
-Bucket policy
-
-## ![🚀](<Base64-Image-Removed>) 8\. Apply Infrastructure
-
+```bash
 terraform apply "tfplan"
+```
+> **Note:** CloudFront creation may take **5–15 minutes**. Wait until Terraform completes.
 
-​
+### 📤 9. Upload Your Static Website
+Your `site/` folder represents your website:
 
-CloudFront creation may take 5–15 minutes — wait until Terraform completes.
-
-## ![📤](<Base64-Image-Removed>) 9\. Upload Your Static Website
-
-Your
-
-site/
-
-folder represents your website:
-
+```text
 site/
 ├── index.html
 ├── styles.css
 ├── script.js
 └── images/
+```
 
-​
-
-Upload everything to S3:
-
+**Upload everything to S3:**
+```bash
 aws s3 sync ./site s3://your-unique-bucket-name --delete
+```
 
-​
-
-Verify files:
-
+**Verify files:**
+```bash
 aws s3 ls s3://your-unique-bucket-name --recursive
+```
 
-​
+### 🌐 10. Get Your Website URL
 
-## ![🌐](<Base64-Image-Removed>) 10\. Get Your Website URL
+```bash
+terraform output cloudfront_domain
+```
 
-terraform output cloudfront\_domain
+**Open in browser:**
+`https://<cloudfront-domain>`
 
-​
+> *If `/index.html` works but `/` shows AccessDenied → CloudFront needs `default_root_object = "index.html"` (This Terraform module already supports this).*
 
-Open in browser:
+### 🧹 11. CloudFront Cache Invalidation
+If you update files but the browser still shows old content:
 
-https://<cloudfront-domain>
-
-​
-
-If
-
-/index.html
-
-works but
-
-/
-
-shows AccessDenied → CloudFront needs:
-
-default\_root\_object="index.html"
-
-​
-
-(Terraform module already supports this.)
-
-## ![🧹](<Base64-Image-Removed>) 11\. CloudFront Cache Invalidation
-
-If you update files but browser still shows old content:
-
+```bash
 aws cloudfront create-invalidation \
- --distribution-id <DISTRIBUTION\_ID>\
- --paths "/\*"
+  --distribution-id <DISTRIBUTION_ID> \
+  --paths "/*"
+```
 
-​
+---
 
-## ![💰](<Base64-Image-Removed>) Cost Notes
-
+## 💰 Cost Notes
 CloudFront is low cost for small traffic:
+* **Typical portfolio:** ₹15–₹50/month
+* **S3 storage:** A few rupees per month
+* **Free Tier:** First 1000 invalidation paths free each month.
+* *No major surprise bills if you're running a basic portfolio site.*
 
-Typical portfolio = ₹15–₹50/month
-
-S3 storage = a few rupees per month
-
-First 1000 invalidation paths free each month
-
-No major surprise bills if you're running a basic portfolio site.
-
-## ![🛡](<Base64-Image-Removed>) Security
-
+## 🛡 Security
 This architecture ensures:
+* S3 bucket is **100% private**.
+* Only CloudFront can access it.
+* No public ACLs / policies.
+* No hardcoded AWS credentials in repo.
+* `.gitignore` excludes tfstate & secrets.
 
-S3 bucket is 100% private
+## 📘 Tech Stack
+* **Terraform** (Infrastructure-as-Code)
+* **AWS S3** (Static storage)
+* **AWS CloudFront** (Global CDN)
+* **Origin Access Control** (OAC)
+* **AWS CLI** (Deploy site)
 
-Only CloudFront can access it
-
-No public ACLs / policies
-
-No hardcoded AWS credentials in repo
-
-.gitignore
-
-excludes tfstate & secrets
-
-## ![📘](<Base64-Image-Removed>) Tech Stack
-
-Terraform (Infrastructure-as-Code)
-
-AWS S3 (Static storage)
-
-AWS CloudFront (Global CDN)
-
-Origin Access Control (OAC)
-
-AWS CLI (Deploy site)
-
-## ![📄](<Base64-Image-Removed>) License
-
-MIT License
-
-## ![🤝](<Base64-Image-Removed>) Contributing
-
+## 🤝 Contributing
 Pull requests welcome.
