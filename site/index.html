@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bouncing</title>
+    <style>
+        *{
+            margin: 0;
+        }
+      .big {
+        width: 100vw;
+        height: 100vh;
+        background-color: blue;
+        position: relative;
+      }
+      .ball {
+        width: 50px;
+        height: 50px;
+        background-color: red;
+        border-radius: 70px;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        /* animation: name duration timing-function delay iteration-count direction fill-mode; */
+        animation: x 7s linear infinite, y 1s ease-out infinite alternate-reverse;
+      }
+      .ball1 {
+        width: 50px;
+        height: 50px;
+        background-color: rgb(0, 0, 0);
+        border-radius: 70px;
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+        /* animation: name duration timing-function delay iteration-count direction fill-mode; */
+        animation: x 9s linear infinite, c 1s ease-out infinite alternate-reverse;
+      }
+      @keyframes x {
+        from {
+            left: 0;
+        }
+        to {
+            left: 100%;
+        }
+      }
+     
+      @keyframes y {
+        from {
+            bottom: 0%;
+        }
+        to {
+          bottom: 91%;
+        }
+        
+      }
+      @keyframes c {
+        from {
+            bottom: 10%;
+        }
+        to {
+          bottom: 91%;
+        }
+    }
+    
+    </style>
+  </head>
+  <body>
+    <div class="big">
+      <div class="ball"></div>
+      <div class="ball1 "></div>
+    </div>
+  </body>
+</html>
