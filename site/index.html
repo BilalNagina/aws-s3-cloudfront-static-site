@@ -3,72 +3,134 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bouncing</title>
+    <title>Local Storage Note App</title>
+
     <style>
-        *{
-            margin: 0;
-        }
-      .big {
-        width: 100vw;
-        height: 100vh;
-        background-color: blue;
-        position: relative;
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px;
+        margin: 0;
       }
-      .ball {
-        width: 50px;
-        height: 50px;
-        background-color: red;
-        border-radius: 70px;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        /* animation: name duration timing-function delay iteration-count direction fill-mode; */
-        animation: x 7s linear infinite, y 1s ease-out infinite alternate-reverse;
+
+      h2 {
+        margin-bottom: 20px;
+        color: #333;
       }
-      .ball1 {
-        width: 50px;
-        height: 50px;
-        background-color: rgb(0, 0, 0);
-        border-radius: 70px;
-        position: absolute;
-        bottom: 10px;
-        left: 0;
-        /* animation: name duration timing-function delay iteration-count direction fill-mode; */
-        animation: x 9s linear infinite, c 1s ease-out infinite alternate-reverse;
+
+      textarea {
+        width: 300px;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        resize: none;
+        font-size: 14px;
+        background: white;
       }
-      @keyframes x {
-        from {
-            left: 0;
-        }
-        to {
-            left: 100%;
-        }
+
+      div {
+        margin: 15px 0;
       }
-     
-      @keyframes y {
-        from {
-            bottom: 0%;
-        }
-        to {
-          bottom: 91%;
-        }
-        
+
+      button {
+        padding: 8px 15px;
+        margin: 0 5px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: 0.2s ease-in-out;
       }
-      @keyframes c {
-        from {
-            bottom: 10%;
-        }
-        to {
-          bottom: 91%;
-        }
-    }
-    
+
+      #savebtn {
+        background: #4caf50;
+        color: white;
+      }
+      #savebtn:hover {
+        background: #449d48;
+      }
+
+      #showbtn {
+        background: #2196f3;
+        color: white;
+      }
+      #showbtn:hover {
+        background: #1d87db;
+      }
+
+      #deletebtn {
+        background: #f44336;
+        color: white;
+      }
+      #deletebtn:hover {
+        background: #d83c30;
+      }
+
+      #notedisplay {
+        margin-top: 20px;
+        width: 320px;
+        min-height: 40px;
+        background: white;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        color: #444;
+        white-space: pre-wrap;
+      }
     </style>
   </head>
+
   <body>
-    <div class="big">
-      <div class="ball"></div>
-      <div class="ball1 "></div>
+    <h2>📝 Note Saver</h2>
+
+    <div>
+      <textarea
+        placeholder="Write Your Note Here....."
+        id="notearea"
+        cols="30"
+        rows="6"
+      ></textarea>
     </div>
+
+    <div>
+      <button type="button" id="savebtn">Save</button>
+      <button type="button" id="showbtn">Show Note</button>
+      <button type="button" id="deletebtn">Delete Note</button>
+    </div>
+
+    <p id="notedisplay"></p>
+
+    <script>
+      const Notearea = document.getElementById("notearea");
+      const Notedisplay = document.getElementById("notedisplay");
+
+      document.getElementById("savebtn").addEventListener("click", () => {
+        localStorage.setItem("notearea", Notearea.value);
+        alert("Note Saved");
+        Notearea.value = "";
+      });
+
+      document.getElementById("showbtn").addEventListener("click", () => {
+        const display = localStorage.getItem("notearea");
+        Notedisplay.textContent = display ? display : "Note not found!";
+      });
+
+      window.addEventListener("DOMContentLoaded", () => {
+        const fetchnote = localStorage.getItem("notearea");
+        if (fetchnote) {
+          Notedisplay.textContent = fetchnote;
+        }
+      });
+
+      document.getElementById("deletebtn").addEventListener("click", () => {
+        localStorage.removeItem("notearea");
+        Notedisplay.textContent = "Note Deleted!";
+        Notearea.value = "";
+      });
+    </script>
   </body>
 </html>
